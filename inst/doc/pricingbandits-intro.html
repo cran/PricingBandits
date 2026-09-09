@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+
+
+<title>Getting Started with PricingBandits</title>
+
+<script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
+// be compatible with the behavior of Pandoc < 2.8).
+document.addEventListener('DOMContentLoaded', function(e) {
+  var hs = document.querySelectorAll("div.section[class*='level'] > :first-child");
+  var i, h, a;
+  for (i = 0; i < hs.length; i++) {
+    h = hs[i];
+    if (!/^h[1-6]$/i.test(h.tagName)) continue;  // it should be a header h1-h6
+    a = h.attributes;
+    while (a.length > 0) h.removeAttribute(a[0].name);
+  }
+});
+</script>
+
+<style type="text/css">
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+span.underline{text-decoration: underline;}
+div.column{display: inline-block; vertical-align: top; width: 50%;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+</style>
+
+
+
+<style type="text/css">
+code {
+white-space: pre;
+}
+.sourceCode {
+overflow: visible;
+}
+</style>
+<style type="text/css" data-origin="pandoc">
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+{ counter-reset: source-line 0; }
+pre.numberSource code > span
+{ position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+{ content: counter(source-line);
+position: relative; left: -1em; text-align: right; vertical-align: baseline;
+border: none; display: inline-block;
+-webkit-touch-callout: none; -webkit-user-select: none;
+-khtml-user-select: none; -moz-user-select: none;
+-ms-user-select: none; user-select: none;
+padding: 0 4px; width: 4em;
+color: #aaaaaa;
+}
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa; padding-left: 4px; }
+div.sourceCode
+{ }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } 
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.at { color: #7d9029; } 
+code span.bn { color: #40a070; } 
+code span.bu { color: #008000; } 
+code span.cf { color: #007020; font-weight: bold; } 
+code span.ch { color: #4070a0; } 
+code span.cn { color: #880000; } 
+code span.co { color: #60a0b0; font-style: italic; } 
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.do { color: #ba2121; font-style: italic; } 
+code span.dt { color: #902000; } 
+code span.dv { color: #40a070; } 
+code span.er { color: #ff0000; font-weight: bold; } 
+code span.ex { } 
+code span.fl { color: #40a070; } 
+code span.fu { color: #06287e; } 
+code span.im { color: #008000; font-weight: bold; } 
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.kw { color: #007020; font-weight: bold; } 
+code span.op { color: #666666; } 
+code span.ot { color: #007020; } 
+code span.pp { color: #bc7a00; } 
+code span.sc { color: #4070a0; } 
+code span.ss { color: #bb6688; } 
+code span.st { color: #4070a0; } 
+code span.va { color: #19177c; } 
+code span.vs { color: #4070a0; } 
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } 
+</style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    var j = 0;
+    while (j < rules.length) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") {
+        j++;
+        continue;
+      }
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' && rule.style.backgroundColor === '') {
+        j++;
+        continue;
+      }
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
+</script>
+
+
+
+
+<style type="text/css">body {
+background-color: #fff;
+margin: 1em auto;
+max-width: 700px;
+overflow: visible;
+padding-left: 2em;
+padding-right: 2em;
+font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+font-size: 14px;
+line-height: 1.35;
+}
+#TOC {
+clear: both;
+margin: 0 0 10px 10px;
+padding: 4px;
+width: 400px;
+border: 1px solid #CCCCCC;
+border-radius: 5px;
+background-color: #f6f6f6;
+font-size: 13px;
+line-height: 1.3;
+}
+#TOC .toctitle {
+font-weight: bold;
+font-size: 15px;
+margin-left: 5px;
+}
+#TOC ul {
+padding-left: 40px;
+margin-left: -1.5em;
+margin-top: 5px;
+margin-bottom: 5px;
+}
+#TOC ul ul {
+margin-left: -2em;
+}
+#TOC li {
+line-height: 16px;
+}
+table {
+margin: 1em auto;
+border-width: 1px;
+border-color: #DDDDDD;
+border-style: outset;
+border-collapse: collapse;
+}
+table th {
+border-width: 2px;
+padding: 5px;
+border-style: inset;
+}
+table td {
+border-width: 1px;
+border-style: inset;
+line-height: 18px;
+padding: 5px 5px;
+}
+table, table th, table td {
+border-left-style: none;
+border-right-style: none;
+}
+table thead, table tr.even {
+background-color: #f7f7f7;
+}
+p {
+margin: 0.5em 0;
+}
+blockquote {
+background-color: #f6f6f6;
+padding: 0.25em 0.75em;
+}
+hr {
+border-style: solid;
+border: none;
+border-top: 1px solid #777;
+margin: 28px 0;
+}
+dl {
+margin-left: 0;
+}
+dl dd {
+margin-bottom: 13px;
+margin-left: 13px;
+}
+dl dt {
+font-weight: bold;
+}
+ul {
+margin-top: 0;
+}
+ul li {
+list-style: circle outside;
+}
+ul ul {
+margin-bottom: 0;
+}
+pre, code {
+background-color: #f7f7f7;
+border-radius: 3px;
+color: #333;
+white-space: pre-wrap; 
+}
+pre {
+border-radius: 3px;
+margin: 5px 0px 10px 0px;
+padding: 10px;
+}
+pre:not([class]) {
+background-color: #f7f7f7;
+}
+code {
+font-family: Consolas, Monaco, 'Courier New', monospace;
+font-size: 85%;
+}
+p > code, li > code {
+padding: 2px 0px;
+}
+div.figure {
+text-align: center;
+}
+img {
+background-color: #FFFFFF;
+padding: 2px;
+border: 1px solid #DDDDDD;
+border-radius: 3px;
+border: 1px solid #CCCCCC;
+margin: 0 5px;
+}
+h1 {
+margin-top: 0;
+font-size: 35px;
+line-height: 40px;
+}
+h2 {
+border-bottom: 4px solid #f7f7f7;
+padding-top: 10px;
+padding-bottom: 2px;
+font-size: 145%;
+}
+h3 {
+border-bottom: 2px solid #f7f7f7;
+padding-top: 10px;
+font-size: 120%;
+}
+h4 {
+border-bottom: 1px solid #f7f7f7;
+margin-left: 8px;
+font-size: 105%;
+}
+h5, h6 {
+border-bottom: 1px solid #ccc;
+font-size: 105%;
+}
+a {
+color: #0033dd;
+text-decoration: none;
+}
+a:hover {
+color: #6666ff; }
+a:visited {
+color: #800080; }
+a:visited:hover {
+color: #BB00BB; }
+a[href^="http:"] {
+text-decoration: underline; }
+a[href^="https:"] {
+text-decoration: underline; }
+
+code > span.kw { color: #555; font-weight: bold; } 
+code > span.dt { color: #902000; } 
+code > span.dv { color: #40a070; } 
+code > span.bn { color: #d14; } 
+code > span.fl { color: #d14; } 
+code > span.ch { color: #d14; } 
+code > span.st { color: #d14; } 
+code > span.co { color: #888888; font-style: italic; } 
+code > span.ot { color: #007020; } 
+code > span.al { color: #ff0000; font-weight: bold; } 
+code > span.fu { color: #900; font-weight: bold; } 
+code > span.er { color: #a61717; background-color: #e3d2d2; } 
+</style>
+
+
+
+
+</head>
+
+<body>
+
+
+
+
+<h1 class="title toc-ignore">Getting Started with PricingBandits</h1>
+
+
+
+<p><code>PricingBandits</code> implements the multi-armed bandit
+approaches to pricing experiments from Weaver, Kumar, and Jain,
+<em>Nonparametric Pricing Bandits Leveraging Informational Externalities
+to Learn the Demand Curve</em> (Marketing Science). The setting is that
+a firm is trying to maximize profits while experimenting from a fixed
+set of candidate prices. Each consumer is presented with a price and
+makes a decision whether to purchase based on their WTP. The algorithm
+observes only the price offered and the consumer’s purchase decision.
+The package’s entry point is a single function,
+<code>PricingBandit()</code>.</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="fu">library</span>(PricingBandits)</span></code></pre></div>
+<div id="the-experiment-environment" class="section level2">
+<h2>The experiment environment</h2>
+<p>Everything about the demand environment is captured by one vector:
+the consumers’ <strong>valuations</strong> (willingness to pay), one
+draw per arriving consumer. The package makes no assumption about where
+they come from — an analytic distribution, an empirical CDF, transaction
+data, anything. A consumer buys if and only if their valuation exceeds
+the posted price.</p>
+<p>In this vignette, we use a right-skewed Beta(2, 9) population — a
+difficult case, because the revenue-maximizing price sits near the
+bottom of the price grid — with 1,000 consumers. Every algorithm below
+is run against <strong>this exact same sequence of consumers</strong>,
+to minimize differences from luck of the draw.</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">29</span>)</span>
+<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a>valuations <span class="ot">&lt;-</span> <span class="fu">rbeta</span>(<span class="dv">1000</span>, <span class="dv">2</span>, <span class="dv">9</span>)</span>
+<span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a>prices     <span class="ot">&lt;-</span> <span class="fu">seq</span>(<span class="dv">10</span>)<span class="sc">/</span><span class="dv">10</span>          <span class="co"># ten candidate prices: 0.1, 0.2, ..., 1.0</span></span></code></pre></div>
+</div>
+<div id="the-pricingbandit-arguments-one-by-one" class="section level2">
+<h2>The <code>PricingBandit()</code> arguments, one by one</h2>
+<ul>
+<li><strong><code>valuations</code></strong> — numeric vector, one WTP
+draw per consumer. Its length sets the experiment length. Prices and
+valuations are assumed scaled to (0, 1] (rescale your data by its
+maximum price, and rescale back afterwards).</li>
+<li><strong><code>prices</code></strong> — the candidate price grid (the
+bandit’s arms), values in (0, 1]. Need not be evenly spaced.</li>
+<li><strong><code>policy</code></strong> — which algorithm prices the
+consumers (see the table below).</li>
+<li><strong><code>batch_size</code></strong> — how many consumers are
+served between policy updates (default 10). Larger batches mean fewer,
+cheaper updates but slower learning.</li>
+<li><strong><code>num_knots</code></strong> — for the monotonic
+(<code>&quot;-M&quot;</code>) variants only: the number of knots of the basis
+expansion used to build monotone demand curves. <strong>The default of
+11 is deliberate and should be kept even for dense price grids</strong>
+(e.g. 100 arms): with many more knots the truncated sampler operates in
+a near-degenerate, high-dimensional space and can break down.</li>
+<li><strong><code>hetero</code></strong> — if <code>TRUE</code>, the
+observation-noise level at each price is re-estimated every update from
+the Gaussian-process posterior instead of being held at its conservative
+Bernoulli bound. Available for all GP variants.</li>
+<li><strong><code>reset</code></strong> — if set to an integer
+<code>n</code>, the experiment history is wiped every <code>n</code>
+consumers. Useful when demand shifts over time (e.g. seasonality) and
+old observations mislead.</li>
+<li><strong><code>timeout</code></strong> — seconds allowed for each
+truncated-sampling attempt in the monotonic fallback chain (default 5).
+Increase on slow machines to give the exact sampler more time; decrease
+to fail over to the cheaper approximations sooner.</li>
+</ul>
+<p>The available policies:</p>
+<table>
+<colgroup>
+<col width="62%" />
+<col width="37%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th><code>policy</code></th>
+<th>Idea</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>&quot;UCB&quot;</code></td>
+<td>Upper Confidence Bound; every price learned independently</td>
+</tr>
+<tr class="even">
+<td><code>&quot;TS&quot;</code></td>
+<td>Thompson Sampling with independent Beta posteriors per price</td>
+</tr>
+<tr class="odd">
+<td><code>&quot;GP-UCB&quot;</code>, <code>&quot;GP-TS&quot;</code></td>
+<td>Prices tied together through a Gaussian-process demand curve, so
+each observation informs <em>all</em> prices</td>
+</tr>
+<tr class="even">
+<td><code>&quot;GP-UCB-M&quot;</code>, <code>&quot;GP-TS-M&quot;</code></td>
+<td>Additionally impose that demand is weakly decreasing in price — the
+sampled curves are monotone everywhere by construction</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="running-every-algorithm-on-the-same-consumers" class="section level2">
+<h2>Running every algorithm on the same consumers</h2>
+<p>Each call returns a data frame with one row per consumer
+(<code>PricesTested</code>, <code>PurchaseDecisions</code>), plus a
+<code>diagnostics</code> attribute with fallback counters. We reset the
+seed before each run so the <em>policies’</em> randomness is
+reproducible too, while the consumer sequence stays fixed.</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a>run <span class="ot">&lt;-</span> <span class="cf">function</span>(policy, <span class="at">hetero =</span> <span class="cn">FALSE</span>) {</span>
+<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a>  <span class="fu">set.seed</span>(<span class="dv">1</span>)</span>
+<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a>  <span class="fu">PricingBandit</span>(valuations, prices,</span>
+<span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a>                <span class="at">policy     =</span> policy,</span>
+<span id="cb3-5"><a href="#cb3-5" tabindex="-1"></a>                <span class="at">batch_size =</span> <span class="dv">10</span>,</span>
+<span id="cb3-6"><a href="#cb3-6" tabindex="-1"></a>                <span class="at">hetero     =</span> hetero)</span>
+<span id="cb3-7"><a href="#cb3-7" tabindex="-1"></a>}</span>
+<span id="cb3-8"><a href="#cb3-8" tabindex="-1"></a></span>
+<span id="cb3-9"><a href="#cb3-9" tabindex="-1"></a><span class="co"># Baselines: each arm learned independently</span></span>
+<span id="cb3-10"><a href="#cb3-10" tabindex="-1"></a>out_ucb  <span class="ot">&lt;-</span> <span class="fu">run</span>(<span class="st">&quot;UCB&quot;</span>)</span>
+<span id="cb3-11"><a href="#cb3-11" tabindex="-1"></a>out_ts   <span class="ot">&lt;-</span> <span class="fu">run</span>(<span class="st">&quot;TS&quot;</span>)</span>
+<span id="cb3-12"><a href="#cb3-12" tabindex="-1"></a></span>
+<span id="cb3-13"><a href="#cb3-13" tabindex="-1"></a><span class="co"># Gaussian-process variants: the demand curve correlates the arms</span></span>
+<span id="cb3-14"><a href="#cb3-14" tabindex="-1"></a>out_gpucb <span class="ot">&lt;-</span> <span class="fu">run</span>(<span class="st">&quot;GP-UCB&quot;</span>)</span>
+<span id="cb3-15"><a href="#cb3-15" tabindex="-1"></a>out_gpts  <span class="ot">&lt;-</span> <span class="fu">run</span>(<span class="st">&quot;GP-TS&quot;</span>)</span>
+<span id="cb3-16"><a href="#cb3-16" tabindex="-1"></a></span>
+<span id="cb3-17"><a href="#cb3-17" tabindex="-1"></a><span class="co"># Monotonic variants (basis-function construction; num_knots = 11 default)</span></span>
+<span id="cb3-18"><a href="#cb3-18" tabindex="-1"></a>out_gpucb_m <span class="ot">&lt;-</span> <span class="fu">run</span>(<span class="st">&quot;GP-UCB-M&quot;</span>)</span>
+<span id="cb3-19"><a href="#cb3-19" tabindex="-1"></a>out_gpts_m  <span class="ot">&lt;-</span> <span class="fu">run</span>(<span class="st">&quot;GP-TS-M&quot;</span>)</span>
+<span id="cb3-20"><a href="#cb3-20" tabindex="-1"></a></span>
+<span id="cb3-21"><a href="#cb3-21" tabindex="-1"></a><span class="co"># Heterogeneous-noise versions of the monotonic algorithms</span></span>
+<span id="cb3-22"><a href="#cb3-22" tabindex="-1"></a>out_gpucb_m_h <span class="ot">&lt;-</span> <span class="fu">run</span>(<span class="st">&quot;GP-UCB-M&quot;</span>, <span class="at">hetero =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb3-23"><a href="#cb3-23" tabindex="-1"></a>out_gpts_m_h  <span class="ot">&lt;-</span> <span class="fu">run</span>(<span class="st">&quot;GP-TS-M&quot;</span>,  <span class="at">hetero =</span> <span class="cn">TRUE</span>)</span></code></pre></div>
+<p>To judge performance we score each posted price by its
+<em>expected</em> revenue <code>p * (1 - F(p))</code> under the true WTP
+distribution, and track cumulative revenue as a percentage of what the
+true optimal price would have earned:</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a>expected_reward <span class="ot">&lt;-</span> prices <span class="sc">*</span> (<span class="dv">1</span> <span class="sc">-</span> <span class="fu">pbeta</span>(prices, <span class="dv">2</span>, <span class="dv">9</span>))</span>
+<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a>grid            <span class="ot">&lt;-</span> <span class="fu">seq</span>(<span class="fl">1e-6</span>, <span class="dv">1</span>, <span class="fl">1e-6</span>)</span>
+<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a>true_optimal    <span class="ot">&lt;-</span> <span class="fu">max</span>(grid <span class="sc">*</span> (<span class="dv">1</span> <span class="sc">-</span> <span class="fu">pbeta</span>(grid, <span class="dv">2</span>, <span class="dv">9</span>)))</span>
+<span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a></span>
+<span id="cb4-5"><a href="#cb4-5" tabindex="-1"></a>score <span class="ot">&lt;-</span> <span class="cf">function</span>(out) {</span>
+<span id="cb4-6"><a href="#cb4-6" tabindex="-1"></a>  er <span class="ot">&lt;-</span> expected_reward[<span class="fu">match</span>(out<span class="sc">$</span>PricesTested, prices)]</span>
+<span id="cb4-7"><a href="#cb4-7" tabindex="-1"></a>  <span class="fu">cumsum</span>(er) <span class="sc">/</span> (<span class="fu">seq_along</span>(er) <span class="sc">*</span> true_optimal) <span class="sc">*</span> <span class="dv">100</span></span>
+<span id="cb4-8"><a href="#cb4-8" tabindex="-1"></a>}</span></code></pre></div>
+</div>
+<div id="results" class="section level2">
+<h2>Results</h2>
+<p>The results below were precomputed with exactly the code above (they
+ship with the package so this vignette builds quickly).</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a>res <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="st">&quot;vignette_results.rds&quot;</span>)<span class="sc">$</span>results</span>
+<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a></span>
+<span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a><span class="cf">if</span> (<span class="fu">requireNamespace</span>(<span class="st">&quot;ggplot2&quot;</span>, <span class="at">quietly =</span> <span class="cn">TRUE</span>)) {</span>
+<span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a>  <span class="fu">library</span>(ggplot2)</span>
+<span id="cb5-5"><a href="#cb5-5" tabindex="-1"></a>  res<span class="sc">$</span>family <span class="ot">&lt;-</span> <span class="fu">ifelse</span>(<span class="fu">grepl</span>(<span class="st">&quot;TS&quot;</span>, res<span class="sc">$</span>policy), <span class="st">&quot;Thompson Sampling family&quot;</span>,</span>
+<span id="cb5-6"><a href="#cb5-6" tabindex="-1"></a>                       <span class="st">&quot;UCB family&quot;</span>)</span>
+<span id="cb5-7"><a href="#cb5-7" tabindex="-1"></a>  res<span class="sc">$</span>variant <span class="ot">&lt;-</span> <span class="fu">ifelse</span>(res<span class="sc">$</span>hetero, <span class="st">&quot;heterogeneous noise&quot;</span>, <span class="st">&quot;standard&quot;</span>)</span>
+<span id="cb5-8"><a href="#cb5-8" tabindex="-1"></a>  <span class="fu">ggplot</span>(res, <span class="fu">aes</span>(consumer, cum_pct_optimal, <span class="at">colour =</span> policy,</span>
+<span id="cb5-9"><a href="#cb5-9" tabindex="-1"></a>                  <span class="at">linetype =</span> variant)) <span class="sc">+</span></span>
+<span id="cb5-10"><a href="#cb5-10" tabindex="-1"></a>    <span class="fu">geom_line</span>(<span class="at">linewidth =</span> <span class="fl">0.6</span>) <span class="sc">+</span></span>
+<span id="cb5-11"><a href="#cb5-11" tabindex="-1"></a>    <span class="fu">facet_wrap</span>(<span class="sc">~</span> family) <span class="sc">+</span></span>
+<span id="cb5-12"><a href="#cb5-12" tabindex="-1"></a>    <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">&quot;Consumers&quot;</span>, <span class="at">y =</span> <span class="st">&quot;Cumulative revenue (% of true optimal)&quot;</span>,</span>
+<span id="cb5-13"><a href="#cb5-13" tabindex="-1"></a>         <span class="at">colour =</span> <span class="cn">NULL</span>, <span class="at">linetype =</span> <span class="cn">NULL</span>,</span>
+<span id="cb5-14"><a href="#cb5-14" tabindex="-1"></a>         <span class="at">title =</span> <span class="st">&quot;All algorithms on the same 1,000 Beta(2,9) consumers&quot;</span>) <span class="sc">+</span></span>
+<span id="cb5-15"><a href="#cb5-15" tabindex="-1"></a>    <span class="fu">coord_cartesian</span>(<span class="at">ylim =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">100</span>)) <span class="sc">+</span></span>
+<span id="cb5-16"><a href="#cb5-16" tabindex="-1"></a>    <span class="fu">theme_minimal</span>() <span class="sc">+</span></span>
+<span id="cb5-17"><a href="#cb5-17" tabindex="-1"></a>    <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">&quot;bottom&quot;</span>)</span>
+<span id="cb5-18"><a href="#cb5-18" tabindex="-1"></a>} <span class="cf">else</span> {</span>
+<span id="cb5-19"><a href="#cb5-19" tabindex="-1"></a>  final <span class="ot">&lt;-</span> res[res<span class="sc">$</span>consumer <span class="sc">==</span> <span class="dv">1000</span>, <span class="fu">c</span>(<span class="st">&quot;label&quot;</span>, <span class="st">&quot;cum_pct_optimal&quot;</span>)]</span>
+<span id="cb5-20"><a href="#cb5-20" tabindex="-1"></a>  final[<span class="fu">order</span>(<span class="sc">-</span>final<span class="sc">$</span>cum_pct_optimal), ]</span>
+<span id="cb5-21"><a href="#cb5-21" tabindex="-1"></a>}</span></code></pre></div>
+<p><img src="data:image/png;base64,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" /><!-- --></p>
+<p>The ordering reflects the paper’s central result: exploiting the
+informational externalities — first correlation across prices (GP), then
+monotonicity of demand (the “-M” variants) — dramatically reduces the
+cost of learning, especially in this hard case where the optimal price
+sits at the low end of the grid.</p>
+<p>Final standings after 1,000 consumers:</p>
+<table>
+<thead>
+<tr class="header">
+<th align="left">Algorithm</th>
+<th align="right">% of optimal (cumulative, 1000 consumers)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">GP-TS-M (hetero)</td>
+<td align="right">86.6</td>
+</tr>
+<tr class="even">
+<td align="left">GP-TS-M</td>
+<td align="right">85.3</td>
+</tr>
+<tr class="odd">
+<td align="left">GP-UCB-M (hetero)</td>
+<td align="right">84.8</td>
+</tr>
+<tr class="even">
+<td align="left">GP-UCB-M</td>
+<td align="right">80.7</td>
+</tr>
+<tr class="odd">
+<td align="left">GP-TS</td>
+<td align="right">69.8</td>
+</tr>
+<tr class="even">
+<td align="left">TS</td>
+<td align="right">59.0</td>
+</tr>
+<tr class="odd">
+<td align="left">GP-UCB</td>
+<td align="right">45.8</td>
+</tr>
+<tr class="even">
+<td align="left">UCB</td>
+<td align="right">12.4</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="diagnostics" class="section level2">
+<h2>Diagnostics</h2>
+<p>Each run counts how often its numerical fallback paths fired
+(hyperparameter optimization failing back to priors, truncated-sampler
+timeouts, last-resort samplers). In normal operation all counters are
+zero; a run with many last-resort events is telling you the sampler
+struggled with your price grid.</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a><span class="fu">attr</span>(out_gpts_m, <span class="st">&quot;diagnostics&quot;</span>)</span></code></pre></div>
+</div>
+
+
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
