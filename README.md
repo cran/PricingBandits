@@ -14,9 +14,15 @@ package are validated seed-for-seed bit-identical against it.
 > Looking for the **Python version**? See
 > [pricingbandits-py](https://github.com/ian-weaver/pricingbandits-py).
 
+[![CRAN status](https://www.r-pkg.org/badges/version/PricingBandits)](https://CRAN.R-project.org/package=PricingBandits)
+
 ## Installation
 
 ```r
+# from CRAN (released version):
+install.packages("PricingBandits")
+
+# or the development version from GitHub:
 # install.packages("devtools")
 devtools::install_github("ian-weaver/PricingBandits")
 ```
@@ -60,6 +66,31 @@ break down, so keep it modest even for dense price grids. `timeout` (default
 5 seconds) bounds each truncated-sampling attempt before the fallback chain
 advances; raise it on slow machines, lower it to fail over to cheaper
 approximations sooner.
+
+## Policy Comparison Example
+
+Running each policy with one seed on the same 1,000 consumers — willingness
+to pay drawn from a Beta(2, 9) distribution — gives the results below. To
+compare policies, score each price the bandit posted by its expected revenue
+under the true distribution, and track the cumulative total as a percentage
+of what always charging the optimal price would have earned:
+
+```r
+expected_revenue <- prices * (1 - pbeta(prices, 2, 9))   # true revenue at each posted price
+grid             <- seq(1e-6, 1, 1e-6)
+optimal          <- max(grid * (1 - pbeta(grid, 2, 9)))  # best any price could do
+earned           <- expected_revenue[match(out$PricesTested, prices)]
+pct_of_optimal   <- cumsum(earned) / (seq_along(earned) * optimal) * 100
+```
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="man/figures/README-comparison-dark.png">
+  <img alt="Cumulative revenue as a percentage of the optimal price's revenue, for all six policies on the same 1,000 simulated consumers" src="man/figures/README-comparison.png">
+</picture>
+
+See the [package vignette](https://CRAN.R-project.org/package=PricingBandits)
+for the full walk-through this figure comes from, including the
+heterogeneous-noise variants and every argument explained.
 
 ## Diagnostics
 

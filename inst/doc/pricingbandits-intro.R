@@ -45,6 +45,21 @@ library(PricingBandits)
 #   cumsum(er) / (seq_along(er) * true_optimal) * 100
 # }
 
+## ----assemble, eval = FALSE---------------------------------------------------
+# runs <- list("UCB"    = out_ucb,     "TS"      = out_ts,
+#              "GP-UCB" = out_gpucb,   "GP-TS"   = out_gpts,
+#              "GP-UCB-M" = out_gpucb_m, "GP-TS-M" = out_gpts_m,
+#              "GP-UCB-M (hetero)" = out_gpucb_m_h,
+#              "GP-TS-M (hetero)"  = out_gpts_m_h)
+# 
+# res <- do.call(rbind, lapply(names(runs), function(nm) {
+#   data.frame(policy   = sub(" (hetero)", "", nm, fixed = TRUE),
+#              hetero   = grepl("hetero", nm),
+#              label    = nm,
+#              consumer = seq_along(valuations),
+#              cum_pct_optimal = score(runs[[nm]]))
+# }))
+
 ## ----plot, echo = TRUE--------------------------------------------------------
 res <- readRDS("vignette_results.rds")$results
 
